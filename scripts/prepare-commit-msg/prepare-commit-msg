@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -z "$BRANCHES_TO_SKIP" ]; then
+  BRANCHES_TO_SKIP=(main develop release)
+fi
+
+# COMMIT_EDITMSG 파일 경로
+COMMIT_EDITMSG_FILE=$1
+# 브랜치 이름 정규식
+REGEX_BRANCH_NAME="^feature/.+/.+"
+# 현재 브랜치 이름 조회
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+TASK_ID=""
+
+if [[ $BRANCH_NAME =~ $REGEX_BRANCH_NAME ]];then
+    # 브랜치 이름에서 TASK_ID 추출
+    TASK_ID=$(echo "$BRANCH_NAME" | cut -d '/' -f 2)
+fi
+
+if [[ -n "$TASK_ID" ]];then
+  sed -i.bak -e "1s/^/[$TASK_ID] /" "$COMMIT_EDITMSG_FILE"
+fi
